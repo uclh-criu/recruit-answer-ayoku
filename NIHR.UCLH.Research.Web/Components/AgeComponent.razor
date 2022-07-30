@@ -1,0 +1,48 @@
+﻿@inject IRequestService AppRequestService
+
+<h1>Hello, world!</h1>
+
+<EditForm Model="@age" OnValidSubmit="HandleSubmit">
+    <InputNumber @bind-Value=age.Age>
+
+    </InputNumber>
+     <button aria-label="submit" class="btn btn-blue" type="submit">                       
+                       submit                      
+     </button>
+</EditForm>
+
+
+@if(listOfAge.Count > 0)
+{
+    
+<div>
+    <ul>
+            @foreach(var patient in listOfAge)
+            {
+                <li> 
+                   @patient.Admission.AdmissionSource
+                   @patient.Admission.DischargeTo
+                   @patient.Admission.VisitEndDate
+                   @patient.Admission.VisitStartDate
+               </li>
+            }
+            
+        </ul>
+</div>
+
+}
+
+
+@code{
+    AgeViewModel age = new();
+    List<AgeModel> listOfAge = new();
+
+  
+
+    async Task HandleSubmit()
+    {
+         var result = await AppRequestService.GetAdmissionByAge(age.Age);
+        listOfAge.AddRange(result);
+      //  age = await _EmergencySurvey.Clear(viewModel);
+    }
+}
