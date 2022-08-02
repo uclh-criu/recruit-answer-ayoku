@@ -2,9 +2,9 @@
 {
     public interface IRequestService
     {
-        Task<IList<AgeModel>> GetAdmissionByAge(int age);
-        Task<IList<GenderModel>> GetAdmissionByGender(string gender);
-        Task<IList<EthincityModel>> GetAdmissionByEthinicity(string region);
+        Task<int> GetAdmissionByAge(int age);
+        Task<int> GetAdmissionByGender(string gender);
+        Task<int> GetAdmissionByEthinicity(string region);
 
     }
 }

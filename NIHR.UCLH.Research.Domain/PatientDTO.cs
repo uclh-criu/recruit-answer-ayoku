@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace NIHR.UCLH.Research.Domain
 {
-    public class AgeDTO
+    public class PatientDTO
     {
+        public int AdmissionSource { get; set; }
+      
         
-        public AdmissionDTO Admission { get; set; }
-        public string SexAtBirth { get; set; }
-        public string Ethnicity { get; set; }
-        
-
     }
 }

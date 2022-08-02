@@ -13,63 +13,64 @@ namespace NIHR.UCLH.Research.Web.Services.Implementations
                 //this._identityServer = identityServer;
             this._configuration = configuration;
         }
-        public async Task<IList<AgeModel>> GetAdmissionByAge(int age)
+        public async Task<int> GetAdmissionByAge(int age)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://localhost:7011/");
-                var response = await client.GetAsync(String.Concat("Admission/age?age=", age.ToString()));
+                var response = await client.GetAsync(String.Concat("Admission/agecount?age=", age.ToString()));
                 string jsonString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    return JsonConvert.DeserializeObject<List<AgeModel>>(jsonString);
+                    return JsonConvert.DeserializeObject<int>(jsonString);
                 }
                 else
                 {
                     //  _logger.LogError(jsonString);
                 }
 
-                return null;
+                return 0;
             }
 
         }
-        public async Task<IList<EthincityModel>> GetAdmissionByEthinicity(string region)
+        public async Task<int> GetAdmissionByEthinicity(string region)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://localhost:7011/");
-                var response = await client.GetAsync(String.Concat("Admission/ethincity?origin=", region.ToString()));
+                var response = await client.GetAsync(String.Concat("Admission/ethincitycount?origin=", region.ToString()));
                 string jsonString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    return JsonConvert.DeserializeObject<List<EthincityModel>>(jsonString);
+                    return JsonConvert.DeserializeObject<int>(jsonString);
                 }
                 else
                 {
                     //  _logger.LogError(jsonString);
                 }
 
-                return null;
+                return 0;
             }
         }
 
-        public async Task<IList<GenderModel>> GetAdmissionByGender(string gender)
+        public async Task<int> GetAdmissionByGender(string gender)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://localhost:7011/");
-                var response = await client.GetAsync(String.Concat("Admission/gender?gender", gender.ToString()));
+                var response = await client.GetAsync(String.Concat("Admission/gendercount?gender", gender.ToString()));
                 string jsonString = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
-                    return JsonConvert.DeserializeObject<List<GenderModel>>(jsonString);
+                  //  return JsonConvert.DeserializeObject<List<GenderModel>>(jsonString);
+                    return JsonConvert.DeserializeObject<int>(jsonString);
                 }
                 else
                 {
                     //  _logger.LogError(jsonString);
                 }
 
-                return null;
+                return 0;
             }
         }
     }

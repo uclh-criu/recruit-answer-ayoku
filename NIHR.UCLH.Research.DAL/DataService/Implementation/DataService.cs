@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NIHR.UCLH.Research.DAL.DataService.Implementation
@@ -29,8 +30,8 @@ namespace NIHR.UCLH.Research.DAL.DataService.Implementation
             {
                 AdmissionSource = b.AdmissionSource,
                 DischargeTo = b.DischargeTo,               
-                VisitStartDate = b.VisitStartDatetime,
-                VisitEndDate = b.VisitEndDatetime,
+                //VisitStartDate = b.VisitStartDatetime,
+                //VisitEndDate = b.VisitEndDatetime,
 
             }).AsNoTracking();
 
@@ -41,76 +42,103 @@ namespace NIHR.UCLH.Research.DAL.DataService.Implementation
         public async Task<IEnumerable<AgeDTO>> GetAdmissionByAgeAsync(int age)
         {
             
-            using var context = await _contextFactory.CreateDbContextAsync();
-            // patients.AddRange(await context.Admission.Where(a => (DateTime.Now.Year - a.YearOfBirth).Equals(age)).ToListAsync());
-            //   patients.AddRange(await context.Admission.Where(a => a.PatientId.Equals(context.Patient.Where(b=>b.PatientId))
-            var patients = await context.Admission.Where(a => (DateTime.Now.Year - a.Patient.YearOfBirth).Equals(age))
-                                        .Select(b => new AgeDTO()
-                                        {
-                                            Admission = new AdmissionDTO()
-                                            {
-                                                AdmissionSource = b.AdmissionSource,
-                                                VisitStartDate = b.VisitStartDatetime,
-                                                VisitEndDate = b.VisitEndDatetime,
-                                                DischargeTo = b.DischargeTo,
-                                            },                                                                                   
-                                            Ethnicity = b.Patient.Ethnicity,
-                                            SexAtBirth = b.Patient.SexAtBirth,
-                                            
+            using var context = await _contextFactory.CreateDbContextAsync();           
+            var sqlQuery = await context.Admission.Join(context.Patient,p=>p.Patient.PatientId,e=>e.PatientId,(p, e)=> new
+                                                        {   
+                                                            PatientId = p.PatientId,
+                                                            Ethnicity = e.Ethnicity,
+                                                            AdmissionSource = p.AdmissionSource,
+                                                            DischargeTo = p.DischargeTo,
+                                                            Age = e.YearOfBirth,
+                                                            SexAtBirth = e.SexAtBirth
+                                                        })
+                                                    .Where(a => (DateTime.Now.Year - a.Age) == age)
+                                                    .Select(b => new AgeDTO()
+                                                    {
+                                                        Admission = new AdmissionDTO()
+                                                        {
+                                                            AdmissionSource = b.AdmissionSource,                                                           
+                                                            DischargeTo = b.DischargeTo,
+                                                            PatientId = b.PatientId,
+                                                        },                                                                                   
+                                                        Ethnicity = b.Ethnicity,
+                                                        SexAtBirth = b.SexAtBirth,
+                                                        
+                                                    }).ToListAsync();
+           var result = sqlQuery.DistinctBy(q => q.Admission.PatientId);
 
-                                        }).ToListAsync();
-
-            return patients;
+            return result;
         }
 
        
 
         public async Task<IEnumerable<EthincityDTO>> GetAdmissionByEthincityAsync(string ethincity)
         {           
-            using var context = await _contextFactory.CreateDbContextAsync();           
+            using var context = await _contextFactory.CreateDbContextAsync();
 
-            var patients =await context.Admission.Where(a => a.Patient.Ethnicity.Equals(ethincity))
-                                       .Select(b => new EthincityDTO()
-                                                {
-                                                   Admission = new AdmissionDTO()
-                                                   {
-                                                       AdmissionSource = b.AdmissionSource,
-                                                       VisitStartDate = b.VisitStartDatetime,
-                                                       VisitEndDate = b.VisitEndDatetime,
-                                                       DischargeTo = b.DischargeTo,
-                                                   },                                           
-                                                    Age = (DateTime.Now.Year - b.Patient.YearOfBirth),
-                                                    SexAtBirth = b.Patient.SexAtBirth
+
+            var sqlQuery = await context.Admission.Join(context.Patient,p=>p.PatientId,e=>e.PatientId,(p,e)=> new 
+                                                        {
+                                                        PatientId = p.PatientId,
+                                                        Ethnicity = p.Patient.Ethnicity,
+                                                         AdmissionSource = p.AdmissionSource,
+                                                         DischargeTo = p.DischargeTo,
+                                                         Age = (DateTime.Now.Year - p.Patient.YearOfBirth),
+                                                         SexAtBirth = p.Patient.SexAtBirth
+                                                       })
+                                       .Where(a => a.Ethnicity.Equals(ethincity))
                                                   
-                                                   
-                                                }).ToListAsync();
-            
-            return  patients;
+                                       .Select(b => new EthincityDTO()
+                                       {
+                                           Admission = new AdmissionDTO()
+                                           {
+                                               AdmissionSource = b.AdmissionSource,                                              
+                                               DischargeTo = b.DischargeTo,
+                                               PatientId = b.PatientId,
+                                           },
+                                           Age = (DateTime.Now.Year - b.Age),
+                                           SexAtBirth = b.SexAtBirth
+
+                                       }).ToListAsync();
+
+            var result = sqlQuery.DistinctBy(a => a.Admission.PatientId);
+
+            return result;
           
         }
 
         public async Task<IEnumerable<GenderDTO>> GetAdmissionBySexAsync(string gender)
         {
            
-            using var context = await _contextFactory.CreateDbContextAsync();           
+            using var context = await _contextFactory.CreateDbContextAsync();
 
-            var patients = await context.Admission.Where(a => a.Patient.SexAtBirth.Equals(gender))
-                                      .Select(b => new GenderDTO()
+            var sqlQuery = await context.Admission.Join(context.Patient, p => p.Patient.PatientId, e => e.PatientId, (p, e) => new
+                                    {
+                                        PatientId = p.PatientId,
+                                        Ethnicity = p.Patient.Ethnicity,
+                                        AdmissionSource = p.AdmissionSource,
+                                        DischargeTo = p.DischargeTo,
+                                        Age = (DateTime.Now.Year - p.Patient.YearOfBirth),
+                                        SexAtBirth = e.SexAtBirth
+                                    })
+                                    .Where(a => a.SexAtBirth.Equals(gender))
+                                    .Select(b => new GenderDTO()
                                       {
                                           Admission = new AdmissionDTO()
                                           {
-                                              AdmissionSource = b.AdmissionSource,
-                                              VisitStartDate = b.VisitStartDatetime,
-                                              VisitEndDate = b.VisitEndDatetime,
+                                              AdmissionSource = b.AdmissionSource,                                            
                                               DischargeTo = b.DischargeTo,
+                                              PatientId = b.PatientId,
                                           },                                         
-                                          Ethnicity = b.Patient.Ethnicity,
-                                          Age = (DateTime.Now.Year - b.Patient.YearOfBirth)
-                                        
+                                          Ethnicity = b.Ethnicity,
+                                          Age = (DateTime.Now.Year - b.Age)                                       
 
                                       }).ToListAsync();
 
-            return  patients;
+            var result = sqlQuery.DistinctBy(a => a.Admission.PatientId);
+
+            return result;
         }
+       
     }
 }

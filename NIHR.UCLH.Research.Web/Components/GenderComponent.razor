@@ -1,0 +1,62 @@
+﻿@inject IRequestService AppRequestService
+
+<h1>Hello, world!</h1>
+
+<EditForm Model="@viewModel" OnValidSubmit="HandleSubmit">
+  
+      
+        <InputRadioGroup class="form-control custom-select inputstyle pl-5" @bind-Value=viewModel.GenderId id="gender" Name="gender" >
+             <InputRadio Value="1" id="male" aria-describedby="male" Name="gender" />
+            <label for="male">Male  </label><br />
+
+              <InputRadio Value="2" id="female" aria-describedby="female" Name="gender" />
+            <label for="female">Female  </label><br />
+
+        </InputRadioGroup>
+       
+  
+    
+    
+     <button aria-label="submit" class="btn btn-blue" type="submit">                       
+                       submit                      
+     </button>
+</EditForm>
+
+
+@if(TotalAgeCount > 0 )
+{
+    <div>
+        <h4>Total numbers of Admitted Patients by Ethincity </h4>
+        <span>
+            <h2>
+                @TotalAgeCount
+            </h2>
+        </span>
+    </div>
+}
+else
+{
+    <div><h3> @TotalAgeCount </h3></div>
+}
+
+
+@code{
+    GenderViewModel viewModel = new();    
+    int TotalAgeCount = 0;
+
+
+    async Task HandleSubmit()
+    {
+        if(viewModel.GenderId == 1)
+        {
+            viewModel.SexAtBirth = "M";
+        }else if(viewModel.GenderId == 2)
+        {
+             viewModel.SexAtBirth = "F";
+        }
+        TotalAgeCount = 0; 
+        var result = await AppRequestService.GetAdmissionByGender(viewModel.SexAtBirth);
+        TotalAgeCount = result;
+    }  
+
+}

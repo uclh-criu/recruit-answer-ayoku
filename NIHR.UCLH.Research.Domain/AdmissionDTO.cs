@@ -11,10 +11,8 @@ namespace NIHR.UCLH.Research.Domain
 
         public string AdmissionSource { get; set; }
         public string DischargeTo { get; set; }
-        //public string SexAtBirth { get; set; }
-        //public int Age { get; set; }    
-        //public string Ethnicity { get; set; }
-        public DateTime VisitStartDate { get; set; }        
-        public DateTime VisitEndDate { get; set; }
+        public int PatientId { get; set; }
+        //public DateTime VisitStartDate { get; set; }        
+        //public DateTime VisitEndDate { get; set; }
     }
 }

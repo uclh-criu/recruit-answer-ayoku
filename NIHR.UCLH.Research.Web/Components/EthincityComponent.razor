@@ -1,18 +1,11 @@
-﻿
-@inject IRequestService AppRequestService
+﻿@inject IRequestService AppRequestService
 
 <h1>Hello, world!</h1>
 
-<EditForm Model="@age" OnValidSubmit="HandleSubmit">
-  
-    <div class="form-group"> 
-       <label for="searchag">Enter Age </label>
-        <InputNumber @bind-Value=age.Age id="searchage" class="form-control inputstyle" placeholder="Enter age here ...">
+<EditForm Model="@viewModel" OnValidSubmit="HandleSubmit">
+    <InputText @bind-Value=viewModel.Ethnicity >
 
-        </InputNumber>
-    </div>
-    
-   
+    </InputText>
      <button aria-label="submit" class="btn btn-blue" type="submit">                       
                        submit                      
      </button>
@@ -22,7 +15,7 @@
 @if(TotalAgeCount > 0 )
 {
     <div>
-        <h4>Total numbers of Admitted Patients by Age </h4>
+        <h4>Total numbers of Admitted Patients by Ethincity </h4>
         <span>
             <h2>
                 @TotalAgeCount
@@ -37,7 +30,7 @@ else
 
 
 @code{
-     AgeViewModel age = new();
+    EthincityViewModel viewModel = new();
     //  List<AgeModel> listOfAge = new();
     int TotalAgeCount = 0;
 
@@ -45,11 +38,9 @@ else
     async Task HandleSubmit()
     {
         TotalAgeCount = 0; 
-        var result = await AppRequestService.GetAdmissionByAge(age.Age);
+        var result = await AppRequestService.GetAdmissionByEthinicity(viewModel.Ethnicity);
         TotalAgeCount = result;
 
-    }
-
-  
+    }  
 
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NIHR.UCLH.Research.DAL.DataService.Interface;
 using NIHR.UCLH.Research.Domain;
@@ -26,15 +27,49 @@ namespace NIHR.UCLH.Research.API.Controllers
         //}
 
         [HttpGet]
-        [Route("ethincity")]
-        public async Task<ActionResult<IList<EthincityDTO>>> GetAppointmentsByEthincity(string origin)
+        [Route("ethincitycount")]
+        public async Task<ActionResult<int>> GetAppointmentsByEthincityCount(string origin)
         {
             var appointmentList = await _dataService.GetAdmissionByEthincityAsync(origin);
-
-            return  await Task.FromResult(appointmentList.ToList());
+            int admission = appointmentList.Count();
+            return await Task.FromResult(admission);
         }
 
 
+        [HttpGet]
+        [Route("gendercount")]
+        public async Task<ActionResult<int>> GetAppointmentsByGenderCount(string gender)
+        {
+            
+            var appointmentList = await _dataService.GetAdmissionBySexAsync(gender);
+            int admission = appointmentList.Count();
+            return await Task.FromResult(admission);
+        }
+
+
+        [HttpGet]
+        [Route("agecount")]
+        public async Task<int> GetAppointmentsByAgeCount(int age)
+        {
+            var appointmentList = await _dataService.GetAdmissionByAgeAsync(age);
+            int admission = appointmentList.Count();
+             
+            return await Task.FromResult(admission);
+            
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("age")]
+        public async Task<ActionResult<IList<AgeDTO>>> GetAppointmentsByAge(int age)
+        {
+            var appointmentList = await _dataService.GetAdmissionByAgeAsync(age);
+
+            return await Task.FromResult(appointmentList.ToList());
+        }
+
+
+        [Authorize]
         [HttpGet]
         [Route("gender")]
         public async Task<ActionResult<IList<GenderDTO>>> GetAppointmentsByGender(string gender)
@@ -44,11 +79,13 @@ namespace NIHR.UCLH.Research.API.Controllers
             return await Task.FromResult(appointmentList.ToList());
         }
 
+
+        [Authorize]
         [HttpGet]
-        [Route("age")]
-        public async Task<ActionResult<IList<AgeDTO>>> GetAppointmentsByAge(int age)
+        [Route("ethincity")]
+        public async Task<ActionResult<IList<EthincityDTO>>> GetAppointmentsByEthincity(string origin)
         {
-            var appointmentList = await _dataService.GetAdmissionByAgeAsync(age);
+            var appointmentList = await _dataService.GetAdmissionByEthincityAsync(origin);
 
             return await Task.FromResult(appointmentList.ToList());
         }
